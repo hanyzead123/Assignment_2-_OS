@@ -1,0 +1,66 @@
+CSE233 - Operating Systems - Lab 5
+Process Management, Linker & Loader
+Submitted by: Hnay Ziad Abdelaal Mohamed
+GitHub Link: https://github.com/hanyzead123/Assignment_2-_OS
+
+--------------------------------------------------------------------
+1. Exercise 1: Using fork() in C – process_creation.c
+--------------------------------------------------------------------
+The fork() system call creates a new process by duplicating the calling process.
+After fork():
+- In the child process  → fork() returns 0
+- In the parent process → fork() returns the PID of the child (> 0)
+- On failure           → fork() returns -1
+
+Both parent and child continue execution from the line after fork().
+They have separate address spaces but initially identical memory content.
+The program prints different messages so we can see which process is which.
+Output order is nondeterministic because the OS scheduler decides who runs first.
+
+--------------------------------------------------------------------
+2. Role of the Linker
+--------------------------------------------------------------------
+The linker (ld) is responsible for:
+- Combining multiple object files (.o) into a single executable
+- Resolving external symbols/references (e.g., the call to hello() in file2.c is resolved to the definition in file1.c)
+- Producing the final executable file with correct memory layout
+
+In Exercise 5:
+- file1.c contains the definition of hello()
+- file2.c contains a declaration and calls hello()
+- When we run: gcc file1.c file2.c -o output_program
+  → gcc automatically invokes the linker to resolve hello() and create one executable.
+
+If we modify only file1.c and recompile both files, only the changed file is recompiled, but linking happens again to produce a new executable.
+
+--------------------------------------------------------------------
+3. Role of the Loader
+--------------------------------------------------------------------
+The loader is part of the operating system and runs when we execute a program.
+Its jobs are:
+- Read the executable file from disk
+- Allocate memory for code, data, BSS, stack, heap
+- Copy code and initialized data into memory
+- Resolve and load required shared (dynamic) libraries
+- Initialize the stack and registers
+- Jump to the program entry point (usually _start → main)
+
+In Exercise 6:
+- We compile a simple C program that uses printf()
+- printf() is in libc.so.6 (the C standard library)
+- ldd simple_program shows all dynamically linked libraries (e.g., libc.so.6, ld-linux-x86-64.so.2)
+- At runtime, the dynamic loader loads these libraries into memory before main() runs.
+
+--------------------------------------------------------------------
+4. Makefile Explanation
+--------------------------------------------------------------------
+The provided Makefile compiles all programs with one command: make
+Targets:
+- process_creation   → from process_creation.c
+- linker_example     → links file1.o + file2.o
+- loader_example     → from simple_program.c (renamed for clarity)
+
+Running "make" builds everything.
+Running "make clean" removes object files and executables.
+
+All programs were successfully compiled and executed (see screenshots folder).
